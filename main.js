@@ -1,13 +1,59 @@
 const cardBody = document.getElementsByClassName('card__body')[0];
 const expandBtn = document.getElementById("expand_btn");
-const hideBtn = document.getElementById("hide_btn");
 const arrowBtns = document.getElementsByClassName('arrow_btn');
 
 let isTriggered = false;
 
+let swiper = new Swiper('.swiper', {
+    slidesPerView: 1,
+    loop: true, 
+    pagination: {
+        el: '.swiper-pagination',
+        clickable: true, 
+    },
+});
+
 const onUpdate = () => {
     const matchMobileQuery = window.matchMedia('(min-width:320px) and (max-width: 767px)');
     const childrens = cardBody.children.length;
+
+    if (!matchMobileQuery.matches) {
+        swiper.destroy();
+
+        const card = document.getElementsByClassName('card')[0];
+
+        const swiperSlides = document.getElementsByClassName('swiper-slide');
+        for (const slide of swiperSlides) {
+            slide.classList.remove('swiper-slide');
+            slide.classList.remove('swiper-slide-active');
+        }
+
+        const swiperWrapper = document.getElementsByClassName('swiper-wrapper')[0];
+        if (swiperWrapper !== undefined) {
+            swiperWrapper.classList.remove('swiper-wrapper');
+            card.style.display = 'flex';
+        }
+    } else {
+        const card = document.getElementsByClassName('card')[0];
+        const listItems = document.getElementsByClassName('card__btn__list');
+
+        for (const listItem of listItems) {
+            listItem.classList.add('swiper-slide');
+        }
+
+        cardBody.classList.add('swiper-wrapper');
+
+        card.style.display = 'block';
+
+        swiper = new Swiper('.swiper', {
+            slidesPerView: 1,
+            loop: true,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+        });
+    }
 
     for (let i = 0; i < childrens; i++) {
         cardBody.children[i].style.display = 'flex';
@@ -26,32 +72,30 @@ const onUpdate = () => {
             arrowBtns[i].style.display = 'none';
         }
     } else {
-        expandBtn.style.display= !isTriggered ? "flex" : "none";
-        hideBtn.style.display=isTriggered ? "flex" : "none";
+        for (let i = 0; i < arrowBtns.length; i++) {
+            arrowBtns[i].style.display = 'flex';
+        }
+
+        if (isTriggered) {
+            expandBtn.querySelector('img').setAttribute('src', 'images/iconUp.svg');
+            expandBtn.getElementsByClassName('textcontent')[0].innerHTML = 'Скрыть';
+        } else {
+            expandBtn.querySelector('img').setAttribute('src', 'images/expand.svg');
+            expandBtn.getElementsByClassName('textcontent')[0].innerHTML = 'Показать все';
+        }
     }
 }
-
-document.addEventListener('DOMContentLoaded', function () {
-    onUpdate();
-});
 
 window.addEventListener('resize', () => {
     onUpdate();
 })
 
 expandBtn.addEventListener('click', () => {
-    isTriggered = true;
+    isTriggered = !isTriggered;
+    
     onUpdate();
-
-    // expandBtn.style.display = 'none';
-    // hideBtn.style.display = 'flex';
 });
 
-hideBtn.addEventListener("click", function(){
-    isTriggered=false;
+document.addEventListener('DOMContentLoaded', function () {
     onUpdate();
-
-    // expandBtn.style.display="flex";
-    // hideBtn.style.display="none";
-
-}) 
+});
